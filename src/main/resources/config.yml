@@ -1,5 +1,5 @@
 # ----------------------------------------------
-# |               BaseBot v1.0                 |
+# |                Éclaire v1.0                |
 # |                Config file                 |
 # ----------------------------------------------
 
@@ -10,7 +10,7 @@
 token:
 
 # Name of bot to be used in logs and
-botName: BaseBot
+botName: Éclaire
 
 # URL of the YouTube video BaseBot claims to be streaming
 video_url: https://www.youtube.com/watch?v=AeZRYhLDLeU

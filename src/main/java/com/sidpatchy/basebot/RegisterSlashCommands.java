@@ -1,14 +1,15 @@
 package com.sidpatchy.basebot;
 
-import com.sidpatchy.Robin.Discord.ParseCommands;
+import com.sidpatchy.basebot.Data.ChartType;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import net.dv8tion.jda.api.interactions.commands.Command;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class RegisterSlashCommands {
@@ -40,8 +41,20 @@ public class RegisterSlashCommands {
                 .addChoices(helpCommandChoices);
 
         CommandData help = Commands.slash(commands.getHelp().getName(), commands.getHelp().getHelp()).addOptions(helpOption);
+        CommandData stats = Commands.slash(commands.getStats().getName(), commands.getStats().getHelp())
+                .addOptions(new OptionData(OptionType.USER, "user", "User to get stats for", false))
+                .addOptions(new OptionData(OptionType.STRING, "chart-type", "Type of chart to generate", false)
+                        .addChoices(Arrays.stream(ChartType.values())
+                                .map(type -> new Command.Choice(
+                                        type.name().charAt(0) + type.name().substring(1).toLowerCase(), // "HOURLY" -> "Hourly"
+                                        type.name()
+                                ))
+                                .toArray(Command.Choice[]::new)))
+                .addOptions(new OptionData(OptionType.STRING, "timezone", "Timezone to use for the chart (e.g. UTC, EST, Europe/London)", false));
+        CommandData buildcache = Commands.slash(commands.getBuildcache().getName(), commands.getBuildcache().getHelp())
+                .addOptions(new OptionData(OptionType.CHANNEL, "channel", "Channel to build cache with", true));
 
-        jda.updateCommands().addCommands(help).queue();
+        jda.updateCommands().addCommands(help, stats, buildcache).queue();
     }
 
     private static JDA getPrimaryJDA() {

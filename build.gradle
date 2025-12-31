@@ -35,9 +35,15 @@ dependencies {
     implementation 'com.github.Sidpatchy:Robin:2.2.5'
     implementation 'net.dv8tion:JDA:6.1.0'
 
-    implementation 'org.apache.logging.log4j:log4j-api:2.19.0'
-    implementation 'org.apache.logging.log4j:log4j-core:2.19.0'
-    implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.19.0'
+    implementation 'org.apache.logging.log4j:log4j-api:2.25.3'
+    implementation 'org.apache.logging.log4j:log4j-core:2.25.3'
+    implementation 'org.apache.logging.log4j:log4j-slf4j2-impl:2.25.3'
+
+    implementation 'tools.jackson.dataformat:jackson-dataformat-xml:3.0.0'
+    implementation 'tools.jackson.dataformat:jackson-dataformat-yaml:3.0.0'
+    implementation 'tools.jackson.dataformat:jackson-dataformat-smile:3.0.0'
+
+    implementation 'org.knowm.xchart:xchart:3.8.7'
 }
 
 tasks.test {

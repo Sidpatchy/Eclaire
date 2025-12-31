@@ -7,6 +7,8 @@ import java.util.Objects;
 
 public class Commands {
     private Command help;
+    private Command stats;
+    private Command buildcache;
 
     /**
      * Retrieves a list of all available commands.
@@ -22,6 +24,16 @@ public class Commands {
     public Command getHelp() {
         validateCommand(help);
         return help;
+    }
+
+    public Command getStats() {
+        validateCommand(stats);
+        return stats;
+    }
+
+    public Command getBuildcache() {
+        validateCommand(buildcache);
+        return buildcache;
     }
 
     protected void validateCommand(Command command) {

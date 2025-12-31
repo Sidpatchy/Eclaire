@@ -1,28 +1,27 @@
 package com.sidpatchy.basebot;
 
 import com.sidpatchy.Robin.Discord.CommandFactory;
-import com.sidpatchy.Robin.Discord.ParseCommands;
 import com.sidpatchy.Robin.Exception.InvalidConfigurationException;
 import com.sidpatchy.Robin.File.ResourceLoader;
 import com.sidpatchy.Robin.File.RobinConfiguration;
+import com.sidpatchy.basebot.Data.MessageStats;
+import com.sidpatchy.basebot.Data.MessageStore;
+import com.sidpatchy.basebot.Listener.MessageReceived;
 import com.sidpatchy.basebot.Listener.SlashCommandCreate;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
-import net.dv8tion.jda.api.requests.GatewayIntent;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.awt.*;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.nio.file.Path;
 
 /**
- * BaseBot
- * Copyright (C) 2023  Sidpatchy
+ * Éclaire
+ * Copyright (C) 2025  Sidpatchy
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,7 +36,7 @@ import java.util.Map;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
- * @since November 2023
+ * @since December 2025
  * @version 1.0.0
  * @author Sidpatchy
  */
@@ -51,19 +50,11 @@ public class Main {
 
     private static final long startMillis = System.currentTimeMillis();
 
-    // Related to ClaireData API
-    private static String apiPath;
-    private static String apiUser;
-    private static String apiPassword;
-
-    // Default values for users and guilds when creating them
-    private static Map<String, Object> userDefaults;
-    private static Map<String, Object> guildDefaults;
-
     // Various parameters extracted from config files
     private static String botName;
     private static String color;
     private static String errorColor;
+    private static String guildID;
 
     // Commands
     private static final Logger logger = LogManager.getLogger(Main.class);
@@ -73,6 +64,9 @@ public class Main {
     private static final String commandsFile = "commands.yml";
     private static RobinConfiguration config;
     private static Commands commands;
+
+    private static final MessageStore store = new MessageStore(Path.of("config/messages.smile"));
+    private static final MessageStats stats = new MessageStats(store);
 
     public static void main(String[] args) throws InvalidConfigurationException {
         logger.info("Starting...");
@@ -109,9 +103,9 @@ public class Main {
 
         // Set the bot's activity (streaming if URL provided)
         if (video_url != null && !video_url.isEmpty()) {
-            shardManager.setActivity(Activity.streaming("BaseBot v1.0.0", video_url));
+            shardManager.setActivity(Activity.streaming("Éclaire v1.0.0", video_url));
         } else {
-            shardManager.setActivity(Activity.playing("BaseBot v1.0.0"));
+            shardManager.setActivity(Activity.playing("Éclaire v1.0.0"));
         }
 
         // Register slash commands
@@ -119,6 +113,7 @@ public class Main {
 
         // Register Command-related listeners
         shardManager.addEventListener(new SlashCommandCreate());
+        shardManager.addEventListener(new MessageReceived());
 
         logger.info("Done loading! (" + (System.currentTimeMillis() - startMillis) + "ms)");
     }
@@ -221,4 +216,8 @@ public class Main {
     public static Commands getCommands() {
         return commands;
     }
+
+    public static MessageStore getMessageStore() { return store; }
+
+    public static MessageStats getMessageStats() { return stats; }
 }

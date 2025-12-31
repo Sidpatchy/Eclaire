@@ -14,3 +14,15 @@ help:
   usage: "/help <optional: command-name>"
   help: "Learn how to use BaseBot's commands and various features."
   overview: ""
+
+stats:
+  name: "stats"
+  usage: "/stats <optional: USER>, <optional: TIMEFRAME>"
+  help: "E"
+  overview: "E"
+
+buildcache:
+  name: "buildcache"
+  usage: "/buildcache"
+  help: "E"
+  overview: "E"
