@@ -5,6 +5,7 @@ import org.knowm.xchart.CategoryChart;
 import org.knowm.xchart.CategoryChartBuilder;
 import org.knowm.xchart.style.Styler;
 
+import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.time.*;
@@ -132,6 +133,22 @@ public class MessageStats {
     }
 
     // === CHART GENERATION ===
+    private void applyStyle(CategoryChart chart) {
+        chart.getStyler().setChartBackgroundColor(new Color(54, 57, 63)); // Discord Dark Gray
+        chart.getStyler().setPlotBackgroundColor(new Color(54, 57, 63));
+        chart.getStyler().setPlotGridLinesColor(new Color(79, 84, 92));
+        chart.getStyler().setChartFontColor(Color.WHITE);
+        chart.getStyler().setAxisTickLabelsColor(Color.WHITE);
+        chart.getStyler().setLegendVisible(false);
+        chart.getStyler().setChartTitleBoxVisible(false);
+        chart.getStyler().setSeriesColors(new Color[]{com.sidpatchy.basebot.Main.getColor()});
+        chart.getStyler().setAnnotationTextPanelBackgroundColor(new Color(54, 57, 63));
+        chart.getStyler().setAnnotationTextFontColor(Color.WHITE);
+        chart.getStyler().setXAxisTitleVisible(true);
+        chart.getStyler().setYAxisTitleVisible(true);
+        chart.getStyler().setAxisTickPadding(10);
+        chart.getStyler().setChartTitleVisible(true);
+    }
 
     public File generateHourlyChart(Long userID, ZoneId zoneId) throws IOException {
         Map<Integer, Long> data = getHourlyFrequency(userID, zoneId);
@@ -153,7 +170,7 @@ public class MessageStats {
                 .yAxisTitle("Message Count")
                 .build();
 
-        chart.getStyler().setLegendPosition(Styler.LegendPosition.InsideNW);
+        applyStyle(chart);
         chart.addSeries("Messages", hours, counts);
 
         File tempFile = File.createTempFile("hourly_chart_", ".png");
@@ -179,7 +196,7 @@ public class MessageStats {
                 .yAxisTitle("Message Count")
                 .build();
 
-        chart.getStyler().setLegendPosition(Styler.LegendPosition.InsideNW);
+        applyStyle(chart);
         chart.addSeries("Messages", days, counts);
 
         File tempFile = File.createTempFile("daily_chart_", ".png");
@@ -206,7 +223,7 @@ public class MessageStats {
                 .yAxisTitle("Message Count")
                 .build();
 
-        chart.getStyler().setLegendPosition(Styler.LegendPosition.InsideNW);
+        applyStyle(chart);
         chart.addSeries("Messages", months, counts);
 
         File tempFile = File.createTempFile("monthly_chart_", ".png");
@@ -232,7 +249,7 @@ public class MessageStats {
                 .yAxisTitle("Message Count")
                 .build();
 
-        chart.getStyler().setLegendPosition(Styler.LegendPosition.InsideNW);
+        applyStyle(chart);
         chart.addSeries("Messages", years, counts);
 
         File tempFile = File.createTempFile("yearly_chart_", ".png");

@@ -24,77 +24,91 @@ import java.time.ZoneId;
 import java.util.Objects;
 
 public class SlashCommandCreate extends ListenerAdapter {
-    static ParseCommands parseCommands = new ParseCommands(Main.getCommandsFile());
-    Logger logger = Main.getLogger();
+    private static final ParseCommands parseCommands = new ParseCommands(Main.getCommandsFile());
+    private final Logger logger = Main.getLogger();
 
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
         String commandName = event.getName();
         User author = event.getUser();
-        User user = event.getOption("user") != null ? event.getOption("user").getAsUser() : author;
 
+        // --- HELP COMMAND ---
         if (commandName.equalsIgnoreCase(parseCommands.getCommandName("help"))) {
             OptionMapping opt = event.getOption("command-name");
             String command = opt != null ? opt.getAsString() : "help";
 
             try {
-                event.replyEmbeds(HelpEmbed.getHelp(command, event.getUser().getId()).build()).queue();
+                event.replyEmbeds(HelpEmbed.getHelp(command, author.getId()).build()).queue();
             } catch (FileNotFoundException e) {
-                Main.getLogger().error(e);
-                Main.getLogger().error("There was an issue locating the commands file at some point in the chain while the help command was running, good luck!");
+                logger.error("Error finding commands file during help execution:", e);
+                event.reply("An internal error occurred while fetching the help menu.").setEphemeral(true).queue();
             }
         }
+        // --- STATS COMMAND ---
         else if (commandName.equalsIgnoreCase(parseCommands.getCommandName("stats"))) {
-            OptionMapping cumUserOption = event.getOption("user");
-            String chartTypeStr = event.getOption("chart-type").getAsString();
-            ChartType chartType = ChartType.valueOf(chartTypeStr);
+            // 1. Resolve User
+            OptionMapping userOption = event.getOption("user");
+            User targetUser = userOption != null ? userOption.getAsUser() : null;
 
+            // 2. Resolve Chart Type
+            ChartType chartType = null;
+            OptionMapping chartOption = event.getOption("chart-type");
+            if (chartOption != null) {
+                try {
+                    chartType = ChartType.valueOf(chartOption.getAsString());
+                } catch (IllegalArgumentException e) {
+                    chartType = null; // Invalid chart type, treat as no chart
+                }
+            }
+
+            // 3. Resolve Timezone
             OptionMapping timezoneOption = event.getOption("timezone");
             ZoneId zoneId = ZoneId.systemDefault();
             if (timezoneOption != null) {
                 try {
                     zoneId = ZoneId.of(timezoneOption.getAsString());
                 } catch (DateTimeException e) {
-                    // Fallback to system default or notify user?
-                    // For now, let's just log and use system default.
-                    logger.warn("Invalid timezone provided: " + timezoneOption.getAsString() + ". Using system default.");
-                }
-            }
-
-            User cumUser = null;
-            FileUpload fileUpload = null;
-            if (cumUserOption != null) {
-                cumUser = cumUserOption.getAsUser();
-                try {
-                    fileUpload = StatsEmbed.generateChart(cumUser.getIdLong(), chartType, zoneId);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            else {
-                try {
-                    fileUpload = StatsEmbed.generateChart(null, chartType, zoneId);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    logger.warn("Invalid timezone provided: {}. Using system default.", timezoneOption.getAsString());
                 }
             }
 
             try {
-                MessageCreateData messageData = new MessageCreateBuilder()
-                        .addEmbeds(StatsEmbed.getStats(cumUser).build())
-                        .addFiles(fileUpload)
-                        .build();
-                event.reply(messageData).queue();
+                if (chartType != null) {
+                    // Generate Chart and Embed
+                    FileUpload fileUpload;
+                    if (targetUser != null) {
+                        fileUpload = StatsEmbed.generateChart(targetUser.getIdLong(), chartType, zoneId);
+                    } else {
+                        fileUpload = StatsEmbed.generateChart(null, chartType, zoneId);
+                    }
+
+                    MessageCreateData messageData = new MessageCreateBuilder()
+                            .addEmbeds(StatsEmbed.getStats(targetUser).build())
+                            .addFiles(fileUpload)
+                            .build();
+
+                    event.reply(messageData).queue();
+                } else {
+                    // No Chart, Embed Only
+                    // Fixed: Added .queue() and ensuring targetUser is passed correctly
+                    event.replyEmbeds(StatsEmbed.getStats(targetUser).build()).queue();
+                }
             } catch (IOException e) {
+                logger.error("Error processing stats command:", e);
                 throw new RuntimeException(e);
             }
         }
+        // --- BUILD CACHE COMMAND ---
         else if (commandName.equalsIgnoreCase(parseCommands.getCommandName("buildcache"))) {
             event.deferReply().queue();
 
-            MessageChannel channel = Objects.requireNonNull(event.getOption("channel")).getAsChannel().asTextChannel();
-
-            event.getHook().editOriginalEmbeds(BuildCacheEmbed.getBuildCacheEmbed(author.getId(), channel).build()).queue();
+            OptionMapping channelOption = event.getOption("channel");
+            if (channelOption != null) {
+                MessageChannel channel = channelOption.getAsChannel().asTextChannel();
+                event.getHook().editOriginalEmbeds(
+                        BuildCacheEmbed.getBuildCacheEmbed(author.getId(), channel).build()
+                ).queue();
+            }
         }
     }
 }
