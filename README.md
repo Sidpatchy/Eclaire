@@ -1,2 +1,2 @@
-# BaseBot
- A basic discord bot with no features based on [ClaireBot](https://github.com/Sidpatchy/ClaireBot)
+# Éclaire
+Éclaire does stats on Es posted to SMG Discord's #general
