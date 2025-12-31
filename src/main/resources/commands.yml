@@ -1,0 +1,16 @@
+# ----------------------------------------------
+# |              Robin v2.0.0                  |
+# |          Command Config System             |
+# ----------------------------------------------
+
+# Allows for easy customization of commands and their corresponding help functions.
+# Eliminates the need to recompile the bot to fix/change wording of a command's help / name.
+
+# If 'overview' is empty, the contents of 'help' will be used instead.
+
+# ------------------ COMMANDS ------------------
+help:
+  name: "help"
+  usage: "/help <optional: command-name>"
+  help: "Learn how to use BaseBot's commands and various features."
+  overview: ""

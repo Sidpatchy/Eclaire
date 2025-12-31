@@ -1,0 +1,45 @@
+plugins {
+    id 'com.gradleup.shadow' version '9.2.2'
+    id 'org.jetbrains.kotlin.jvm' version '2.2.20'
+    id 'java'
+}
+
+jar {
+    manifest.attributes(
+            'Main-Class': 'com.sidpatchy.basebot.Main',
+            'Multi-Release': 'true'
+    )
+}
+
+group = "com.sidpatchy"
+version = "1.0-SNAPSHOT"
+
+kotlin {
+    jvmToolchain(25)
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        url = 'https://m2.dv8tion.net/releases'
+    }
+    maven {
+        url = 'https://jitpack.io'
+    }
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
+
+    implementation 'com.github.Sidpatchy:Robin:2.2.5'
+    implementation 'net.dv8tion:JDA:6.1.0'
+
+    implementation 'org.apache.logging.log4j:log4j-api:2.19.0'
+    implementation 'org.apache.logging.log4j:log4j-core:2.19.0'
+    implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.19.0'
+}
+
+tasks.test {
+    useJUnitPlatform()
+}

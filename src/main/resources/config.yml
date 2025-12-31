@@ -1,0 +1,30 @@
+# ----------------------------------------------
+# |               BaseBot v1.0                 |
+# |                Config file                 |
+# ----------------------------------------------
+
+# ----------------- MAIN CONFIG ----------------
+# General config options
+
+# Discord bot token, get one at https://discord.com/developers/applications
+token:
+
+# Name of bot to be used in logs and
+botName: BaseBot
+
+# URL of the YouTube video BaseBot claims to be streaming
+video_url: https://www.youtube.com/watch?v=AeZRYhLDLeU
+
+# Colours to use in the bot's embeds
+color: "#3498db"
+errorColor: "#e74d3c"
+
+# ----------------- SHARD CONFIG ---------------
+# It is assumed that only one shard will be running by default.
+# You probably don't need to change this.
+
+# The shard the bot should log in to
+current_shard: 0
+
+# The total number of shards.
+total_shards: 1
