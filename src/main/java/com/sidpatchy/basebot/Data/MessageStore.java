@@ -73,6 +73,12 @@ public class MessageStore {
                 .findFirst();
     }
 
+    // Get the latest message (highest timestamp)
+    public Optional<EMessage> getLatestMessage() throws IOException {
+        return readAllMessages().stream()
+                .max((m1, m2) -> Long.compare(m1.timestamp(), m2.timestamp()));
+    }
+
     // Search by time range
     public List<EMessage> findByTimeRange(long startTimestamp, long endTimestamp) throws IOException {
         return filter(msg -> msg.timestamp() >= startTimestamp && msg.timestamp() <= endTimestamp);
