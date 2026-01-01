@@ -7,8 +7,11 @@ import com.sidpatchy.Robin.File.RobinConfiguration;
 import com.sidpatchy.basebot.Data.MessageStats;
 import com.sidpatchy.basebot.Data.MessageStore;
 import com.sidpatchy.basebot.Listener.MessageReceived;
+import com.sidpatchy.basebot.Listener.MessageUpdateDelete;
+import com.sidpatchy.basebot.Listener.ReadyListener;
 import com.sidpatchy.basebot.Listener.SlashCommandCreate;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
@@ -114,14 +117,8 @@ public class Main {
         // Register Command-related listeners
         shardManager.addEventListener(new SlashCommandCreate());
         shardManager.addEventListener(new MessageReceived());
-
-        // Fetch missed messages
-        shardManager.getShards().forEach(jda -> {
-            var channel = jda.getTextChannelById(EUtils.E_CHANNEL_ID);
-            if (channel != null) {
-                EUtils.fetchMissedMessages(channel);
-            }
-        });
+        shardManager.addEventListener(new MessageUpdateDelete());
+        shardManager.addEventListener(new ReadyListener());
 
         logger.info("Done loading! (" + (System.currentTimeMillis() - startMillis) + "ms)");
     }
