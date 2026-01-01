@@ -11,6 +11,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -47,6 +48,23 @@ public class MessageStore {
         }
     }
 
+    // Write multiple messages (appends/updates existing)
+    public void writeMessages(List<EMessage> newMessages) throws IOException {
+        List<EMessage> messages = readAllMessages();
+
+        Set<Long> newMessageIds = newMessages.stream()
+                .map(EMessage::messageId)
+                .collect(Collectors.toSet());
+
+        // Remove any existing messages with the same IDs
+        messages.removeIf(msg -> newMessageIds.contains(msg.messageId()));
+
+        // Add the new/updated messages
+        messages.addAll(newMessages);
+
+        writeAllMessages(messages);
+    }
+
     // Write all messages (overwrites)
     private void writeAllMessages(List<EMessage> messages) throws IOException {
         try (OutputStream out = Files.newOutputStream(filePath)) {
@@ -71,6 +89,15 @@ public class MessageStore {
         return readAllMessages().stream()
                 .filter(msg -> msg.messageId().equals(messageId))
                 .findFirst();
+    }
+
+    // Delete a message by ID
+    public void deleteMessage(Long messageId) throws IOException {
+        List<EMessage> messages = readAllMessages();
+        boolean removed = messages.removeIf(msg -> msg.messageId().equals(messageId));
+        if (removed) {
+            writeAllMessages(messages);
+        }
     }
 
     // Get the latest message (highest timestamp)
