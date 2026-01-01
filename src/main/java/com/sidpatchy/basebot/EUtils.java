@@ -7,6 +7,8 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class EUtils {
@@ -21,50 +23,62 @@ public class EUtils {
     }
 
     public static void fetchMissedMessages(MessageChannel channel) {
-        MessageStore store = Main.getMessageStore();
+        Main.getLogger().info("Rechecking for missed messages in channel: " + channel.getName());
         try {
-            Optional<EMessage> latestMessage = store.getLatestMessage();
+            Optional<EMessage> latestMessage = Main.getMessageStore().getLatestMessage();
             if (latestMessage.isPresent()) {
-                long lastId = latestMessage.get().messageId();
-                Main.getLogger().info("Fetching missed messages after ID: " + lastId);
-                fetchMessagesAfter(channel, lastId);
+                long lastMessageId = latestMessage.get().messageId();
+                Main.getLogger().info("Fetching messages after message ID: " + lastMessageId);
+                channel.getHistoryAfter(lastMessageId, 100).queue(history -> {
+                    List<Message> messages = history.getRetrievedHistory();
+                    if (!messages.isEmpty()) {
+                        Main.getLogger().info("Found " + messages.size() + " missed messages.");
+                        processMessages(channel, messages);
+                    } else {
+                        Main.getLogger().info("No missed messages found.");
+                    }
+                });
             } else {
-                Main.getLogger().info("No previous messages found in store. Skipping missed message fetch.");
+                Main.getLogger().info("No previous messages found in store. Fetching recent history.");
+                processMessages(channel, channel.getIterableHistory());
             }
         } catch (IOException e) {
-            Main.getLogger().error("Error while fetching missed messages", e);
+            Main.getLogger().error("Error while fetching latest message from store", e);
+            // Fallback to iterable history if store fails
+            processMessages(channel, channel.getIterableHistory());
         }
     }
 
-    private static void fetchMessagesAfter(MessageChannel channel, long lastId) {
-        channel.getHistoryAfter(lastId, 100).queue(history -> {
-            var messages = history.getRetrievedHistory();
-            if (messages.isEmpty()) return;
-
-            // JDA's MessageHistory for getHistoryAfter is sorted newest to oldest.
-            // Index 0 is the NEWEST message.
-            for (int i = messages.size() - 1; i >= 0; i--) {
-                Message message = messages.get(i);
-                if (isValidEMessage(channel.getIdLong(), message)) {
-                    createEMessage(message);
-                }
+    public static void processMessages(MessageChannel channel, Iterable<Message> messages) {
+        List<EMessage> eMessages = new ArrayList<>();
+        for (Message message : messages) {
+            if (isValidEMessage(channel.getIdLong(), message)) {
+                eMessages.add(toEMessage(message));
+            } else {
+                Main.getLogger().warn("Invalid E message. Content: {} Author: {}, Time: {}",
+                        message.getContentRaw(), message.getAuthor().getEffectiveName(), message.getTimeCreated());
             }
+        }
 
-            if (messages.size() == 100) {
-                long newestId = messages.get(0).getIdLong();
-                fetchMessagesAfter(channel, newestId);
+        if (!eMessages.isEmpty()) {
+            try {
+                Main.getMessageStore().writeMessages(eMessages);
+            } catch (IOException e) {
+                Main.getLogger().error("Error while writing batch E messages", e);
             }
-        });
+        }
+    }
+
+    public static EMessage toEMessage(Message message) {
+        User author = message.getAuthor();
+        EMessage.Author eAuthor = new EMessage.Author(author.getIdLong(), author.getName(), author.getEffectiveName());
+        return new EMessage(message.getTimeCreated().toEpochSecond(), message.getContentRaw(), eAuthor, message.getIdLong());
     }
 
     public static EMessage createEMessage(Message message) {
-        MessageStore store = Main.getMessageStore();
-        User author = message.getAuthor();
-
-        EMessage.Author eAuthor = new EMessage.Author(author.getIdLong(), author.getName(), author.getEffectiveName());
-        EMessage eMessage = new EMessage(message.getTimeCreated().toEpochSecond(), message.getContentRaw(), eAuthor, message.getIdLong());
+        EMessage eMessage = toEMessage(message);
         try {
-            store.writeMessage(eMessage);
+            Main.getMessageStore().writeMessage(eMessage);
         } catch (IOException e) {
             Main.getLogger().error("There was an error while writing an E message to disk");
             throw new RuntimeException(e);
