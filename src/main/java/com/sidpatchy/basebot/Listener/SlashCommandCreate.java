@@ -4,6 +4,8 @@ import com.sidpatchy.Robin.Discord.ParseCommands;
 import com.sidpatchy.basebot.Data.ChartType;
 import com.sidpatchy.basebot.Embed.BuildCacheEmbed;
 import com.sidpatchy.basebot.Embed.HelpEmbed;
+import com.sidpatchy.basebot.Embed.LeaderboardEmbed;
+import com.sidpatchy.basebot.Embed.MilestonesEmbed;
 import com.sidpatchy.basebot.Embed.StatsEmbed;
 import com.sidpatchy.basebot.Main;
 import net.dv8tion.jda.api.entities.User;
@@ -108,6 +110,35 @@ public class SlashCommandCreate extends ListenerAdapter {
                 event.getHook().editOriginalEmbeds(
                         BuildCacheEmbed.getBuildCacheEmbed(author.getId(), channel).build()
                 ).queue();
+            }
+        }
+        // --- LEADERBOARD COMMAND ---
+        else if (commandName.equalsIgnoreCase(parseCommands.getCommandName("leaderboard"))) {
+            try {
+                event.replyEmbeds(LeaderboardEmbed.getLeaderboard(event.getJDA().getShardManager()).build()).queue();
+            } catch (IOException e) {
+                logger.error("Error processing leaderboard command:", e);
+                event.reply("An error occurred while fetching the leaderboard.").setEphemeral(true).queue();
+            }
+        }
+        // --- MILESTONES COMMAND ---
+        else if (commandName.equalsIgnoreCase(parseCommands.getCommandName("milestones"))) {
+            // Resolve Timezone
+            OptionMapping timezoneOption = event.getOption("timezone");
+            ZoneId zoneId = ZoneId.systemDefault();
+            if (timezoneOption != null) {
+                try {
+                    zoneId = ZoneId.of(timezoneOption.getAsString());
+                } catch (DateTimeException e) {
+                    logger.warn("Invalid timezone provided: {}. Using system default.", timezoneOption.getAsString());
+                }
+            }
+
+            try {
+                event.replyEmbeds(MilestonesEmbed.getMilestones(event.getJDA().getShardManager(), zoneId).build()).queue();
+            } catch (IOException e) {
+                logger.error("Error processing milestones command:", e);
+                event.reply("An error occurred while fetching the milestones.").setEphemeral(true).queue();
             }
         }
     }

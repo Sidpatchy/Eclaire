@@ -26,3 +26,15 @@ buildcache:
   usage: "/buildcache"
   help: "E"
   overview: "E"
+
+leaderboard:
+  name: "leaderboard"
+  usage: "/leaderboard"
+  help: "View the most active users!"
+  overview: "Displays a leaderboard of the top users based on message count."
+
+milestones:
+  name: "milestones"
+  usage: "/milestones"
+  help: "View major 'E' milestones!"
+  overview: "Displays major 'E' milestones and records."

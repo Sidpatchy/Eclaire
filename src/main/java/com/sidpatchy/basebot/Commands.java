@@ -9,6 +9,8 @@ public class Commands {
     private Command help;
     private Command stats;
     private Command buildcache;
+    private Command leaderboard;
+    private Command milestones;
 
     /**
      * Retrieves a list of all available commands.
@@ -17,7 +19,11 @@ public class Commands {
      */
     public List<Command> getAllCommands() {
         return List.of(
-                help
+                help,
+                stats,
+                buildcache,
+                leaderboard,
+                milestones
         );
     }
 
@@ -34,6 +40,16 @@ public class Commands {
     public Command getBuildcache() {
         validateCommand(buildcache);
         return buildcache;
+    }
+
+    public Command getLeaderboard() {
+        validateCommand(leaderboard);
+        return leaderboard;
+    }
+
+    public Command getMilestones() {
+        validateCommand(milestones);
+        return milestones;
     }
 
     protected void validateCommand(Command command) {

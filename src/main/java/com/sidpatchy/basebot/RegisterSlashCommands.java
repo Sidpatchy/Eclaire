@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class RegisterSlashCommands {
     private static final com.sidpatchy.basebot.Commands commands = Main.getCommands();
@@ -45,16 +46,22 @@ public class RegisterSlashCommands {
                 .addOptions(new OptionData(OptionType.USER, "user", "User to get stats for", false))
                 .addOptions(new OptionData(OptionType.STRING, "chart-type", "Type of chart to generate", false)
                         .addChoices(Arrays.stream(ChartType.values())
-                                .map(type -> new Command.Choice(
-                                        type.name().charAt(0) + type.name().substring(1).toLowerCase(), // "HOURLY" -> "Hourly"
-                                        type.name()
-                                ))
+                                .map(type -> {
+                                    String name = type.name().replace("_", " ");
+                                    name = Arrays.stream(name.split(" "))
+                                            .map(word -> word.charAt(0) + word.substring(1).toLowerCase())
+                                            .collect(Collectors.joining(" "));
+                                    return new Command.Choice(name, type.name());
+                                })
                                 .toArray(Command.Choice[]::new)))
                 .addOptions(new OptionData(OptionType.STRING, "timezone", "Timezone to use for the chart (e.g. UTC, EST, Europe/London)", false));
         CommandData buildcache = Commands.slash(commands.getBuildcache().getName(), commands.getBuildcache().getHelp())
                 .addOptions(new OptionData(OptionType.CHANNEL, "channel", "Channel to build cache with", true));
+        CommandData leaderboard = Commands.slash(commands.getLeaderboard().getName(), commands.getLeaderboard().getHelp());
+        CommandData milestones = Commands.slash(commands.getMilestones().getName(), commands.getMilestones().getHelp())
+                .addOptions(new OptionData(OptionType.STRING, "timezone", "Timezone to use (e.g. UTC, EST, Europe/London)", false));
 
-        jda.updateCommands().addCommands(help, stats, buildcache).queue();
+        jda.updateCommands().addCommands(help, stats, buildcache, leaderboard, milestones).queue();
     }
 
     private static JDA getPrimaryJDA() {
