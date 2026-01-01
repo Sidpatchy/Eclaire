@@ -83,7 +83,7 @@ public class SlashCommandCreate extends ListenerAdapter {
                     }
 
                     MessageCreateData messageData = new MessageCreateBuilder()
-                            .addEmbeds(StatsEmbed.getStats(targetUser).build())
+                            .addEmbeds(StatsEmbed.getStats(targetUser, zoneId).build())
                             .addFiles(fileUpload)
                             .build();
 
@@ -91,7 +91,7 @@ public class SlashCommandCreate extends ListenerAdapter {
                 } else {
                     // No Chart, Embed Only
                     // Fixed: Added .queue() and ensuring targetUser is passed correctly
-                    event.replyEmbeds(StatsEmbed.getStats(targetUser).build()).queue();
+                    event.replyEmbeds(StatsEmbed.getStats(targetUser, zoneId).build()).queue();
                 }
             } catch (IOException e) {
                 logger.error("Error processing stats command:", e);
