@@ -6,10 +6,12 @@ import org.knowm.xchart.CategoryChartBuilder;
 import org.knowm.xchart.style.Styler;
 
 import java.awt.Color;
+import com.sidpatchy.basebot.Main;
 import java.io.File;
 import java.io.IOException;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -30,6 +32,23 @@ public class MessageStats {
         return store.filter(msg -> msg.author().userId() == userID).size();
     }
 
+    public Map<Long, Long> getTopUsers(int limit) throws IOException {
+        return store.readAllMessages().stream()
+                .collect(Collectors.groupingBy(
+                        msg -> msg.author().userId(),
+                        Collectors.counting()
+                ))
+                .entrySet().stream()
+                .sorted(Map.Entry.<Long, Long>comparingByValue().reversed())
+                .limit(limit)
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (e1, e2) -> e1,
+                        LinkedHashMap::new
+                ));
+    }
+
     // === FREQUENCY ANALYSIS ===
 
     // Hour of day (0-23)
@@ -44,6 +63,29 @@ public class MessageStats {
                                 .atZone(zoneId).getHour(),
                         Collectors.counting()
                 ));
+    }
+
+    public record HourRecord(LocalDate date, int hour, long count) {}
+
+    public HourRecord getTopHour(Long userID, ZoneId zoneId) throws IOException {
+        var messages = userID == null ?
+                store.readAllMessages() :
+                store.filter(msg -> msg.author().userId() == userID);
+
+        if (messages.isEmpty()) return null;
+
+        return messages.stream()
+                .collect(Collectors.groupingBy(
+                        msg -> {
+                            ZonedDateTime zdt = Instant.ofEpochSecond(msg.timestamp()).atZone(zoneId);
+                            return zdt.toLocalDate().atTime(zdt.getHour(), 0);
+                        },
+                        Collectors.counting()
+                ))
+                .entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .map(entry -> new HourRecord(entry.getKey().toLocalDate(), entry.getKey().getHour(), entry.getValue()))
+                .orElse(null);
     }
 
     // Day of week (1=Monday, 7=Sunday)
@@ -88,6 +130,120 @@ public class MessageStats {
                 ));
     }
 
+    public Map<LocalDate, Long> getTopDays(Long userID, int limit, ZoneId zoneId) throws IOException {
+        var messages = userID == null ?
+                store.readAllMessages() :
+                store.filter(msg -> msg.author().userId() == userID);
+
+        return messages.stream()
+                .collect(Collectors.groupingBy(
+                        msg -> Instant.ofEpochSecond(msg.timestamp())
+                                .atZone(zoneId).toLocalDate(),
+                        Collectors.counting()
+                ))
+                .entrySet().stream()
+                .sorted(Map.Entry.<LocalDate, Long>comparingByValue().reversed())
+                .limit(limit)
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (e1, e2) -> e1,
+                        LinkedHashMap::new
+                ));
+    }
+
+    public int getLongestStreak(Long userID, ZoneId zoneId) throws IOException {
+        var messages = userID == null ?
+                store.readAllMessages() :
+                store.filter(msg -> msg.author().userId() == userID);
+
+        if (messages.isEmpty()) return 0;
+
+        List<LocalDate> dates = messages.stream()
+                .map(msg -> Instant.ofEpochSecond(msg.timestamp()).atZone(zoneId).toLocalDate())
+                .distinct()
+                .sorted()
+                .toList();
+
+        int maxStreak = 0;
+        int currentStreak = 0;
+        LocalDate lastDate = null;
+
+        for (LocalDate date : dates) {
+            if (lastDate == null || date.equals(lastDate.plusDays(1))) {
+                currentStreak++;
+            } else {
+                maxStreak = Math.max(maxStreak, currentStreak);
+                currentStreak = 1;
+            }
+            lastDate = date;
+        }
+
+        return Math.max(maxStreak, currentStreak);
+    }
+
+    public double getConsistencyScore(Long userID, int days, ZoneId zoneId) throws IOException {
+        var messages = userID == null ?
+                store.readAllMessages() :
+                store.filter(msg -> msg.author().userId() == userID);
+
+        if (messages.isEmpty()) return 0;
+
+        LocalDate now = LocalDate.now(zoneId);
+        LocalDate startDate;
+        long totalDays;
+
+        if (days > 0) {
+            startDate = now.minusDays(days - 1);
+            totalDays = days;
+        } else {
+            // Since started
+            startDate = messages.stream()
+                    .map(msg -> Instant.ofEpochSecond(msg.timestamp()).atZone(zoneId).toLocalDate())
+                    .min(LocalDate::compareTo)
+                    .orElse(now);
+            totalDays = ChronoUnit.DAYS.between(startDate, now) + 1;
+        }
+
+        long activeDays = messages.stream()
+                .map(msg -> Instant.ofEpochSecond(msg.timestamp()).atZone(zoneId).toLocalDate())
+                .filter(date -> !date.isBefore(startDate))
+                .distinct()
+                .count();
+
+        return (double) activeDays / totalDays * 100;
+    }
+
+    public String getTimeToFirstE(Long userID, ZoneId zoneId) throws IOException {
+        var messages = userID == null ?
+                store.readAllMessages() :
+                store.filter(msg -> msg.author().userId() == userID);
+
+        if (messages.isEmpty()) return "No messages";
+
+        Map<LocalDate, Long> firstESeconds = new HashMap<>();
+
+        for (var msg : messages) {
+            ZonedDateTime zdt = Instant.ofEpochSecond(msg.timestamp()).atZone(zoneId);
+            LocalDate date = zdt.toLocalDate();
+            long secondsSinceMidnight = zdt.toLocalTime().toSecondOfDay();
+
+            firstESeconds.merge(date, secondsSinceMidnight, Math::min);
+        }
+
+        double avgSeconds = firstESeconds.values().stream()
+                .mapToLong(Long::longValue)
+                .average()
+                .orElse(0);
+
+        long seconds = (long) avgSeconds;
+        long h = seconds / 3600;
+        long m = (seconds % 3600) / 60;
+        long s = seconds % 60;
+
+        return String.format("%02d:%02d:%02d", h, m, s);
+    }
+
     // === FIRST MESSAGE ANALYSIS ===
 
     public String getAverageFirstMessageTime(Long userID, Period period, ZoneId zoneId) throws IOException {
@@ -119,6 +275,35 @@ public class MessageStats {
         return LocalTime.ofSecondOfDay((long) avgSeconds).format(DateTimeFormatter.ofPattern("HH:mm:ss"));
     }
 
+    public String getAverageLastMessageTime(Long userID, Period period, ZoneId zoneId) throws IOException {
+        var messages = userID == null ?
+                store.readAllMessages() :
+                store.filter(msg -> msg.author().userId() == userID);
+
+        if (messages.isEmpty()) return "No messages";
+
+        // Group by period (day/week/month/year) and find last message of each
+        Map<LocalDate, LocalTime> lastMessages = new HashMap<>();
+
+        for (var msg : messages) {
+            ZonedDateTime zdt = Instant.ofEpochSecond(msg.timestamp())
+                    .atZone(zoneId);
+            LocalDate periodKey = getPeriodKey(zdt.toLocalDate(), period);
+            LocalTime time = zdt.toLocalTime();
+
+            lastMessages.merge(periodKey, time, (existing, newTime) ->
+                    newTime.isAfter(existing) ? newTime : existing);
+        }
+
+        // Calculate average time
+        double avgSeconds = lastMessages.values().stream()
+                .mapToInt(LocalTime::toSecondOfDay)
+                .average()
+                .orElse(0);
+
+        return LocalTime.ofSecondOfDay((long) avgSeconds).format(DateTimeFormatter.ofPattern("HH:mm:ss"));
+    }
+
     private LocalDate getPeriodKey(LocalDate date, Period period) {
         return switch (period) {
             case DAY -> date;
@@ -132,7 +317,6 @@ public class MessageStats {
         DAY, WEEK, MONTH, YEAR
     }
 
-    // === CHART GENERATION ===
     private void applyStyle(CategoryChart chart) {
         chart.getStyler().setChartBackgroundColor(new Color(54, 57, 63)); // Discord Dark Gray
         chart.getStyler().setPlotBackgroundColor(new Color(54, 57, 63));
