@@ -29,15 +29,7 @@ public class EUtils {
             if (latestMessage.isPresent()) {
                 long lastMessageId = latestMessage.get().messageId();
                 Main.getLogger().info("Fetching messages after message ID: " + lastMessageId);
-                channel.getHistoryAfter(lastMessageId, 100).queue(history -> {
-                    List<Message> messages = history.getRetrievedHistory();
-                    if (!messages.isEmpty()) {
-                        Main.getLogger().info("Found " + messages.size() + " missed messages.");
-                        processMessages(channel, messages);
-                    } else {
-                        Main.getLogger().info("No missed messages found.");
-                    }
-                });
+                fetchMessagesAfter(channel, lastMessageId);
             } else {
                 Main.getLogger().info("No previous messages found in store. Fetching recent history.");
                 processMessages(channel, channel.getIterableHistory());
@@ -47,6 +39,34 @@ public class EUtils {
             // Fallback to iterable history if store fails
             processMessages(channel, channel.getIterableHistory());
         }
+    }
+
+    private static void fetchMessagesAfter(MessageChannel channel, long lastMessageId) {
+        channel.getHistoryAfter(lastMessageId, 100).queue(history -> {
+            List<Message> messages = history.getRetrievedHistory();
+            if (!messages.isEmpty()) {
+                Main.getLogger().info("Found " + messages.size() + " missed messages.");
+                processMessages(channel, messages);
+
+                // If we got 100 messages, there might be more
+                if (messages.size() == 100) {
+                    // JDA history is ordered from newest to oldest by default in getRetrievedHistory()?
+                    // Actually MessageHistory.getRetrievedHistory() is usually chronological if it's history after.
+                    // Let's check the last message in the list to continue fetching.
+                    long newLastMessageId = messages.get(0).getIdLong(); // HistoryAfter should be oldest first.
+                    // Wait, let's verify the order. HistoryAfter(id, limit) returns messages AFTER 'id'.
+                    // Usually it's oldest to newest.
+                    for (Message m : messages) {
+                        if (m.getIdLong() > newLastMessageId) {
+                            newLastMessageId = m.getIdLong();
+                        }
+                    }
+                    fetchMessagesAfter(channel, newLastMessageId);
+                }
+            } else {
+                Main.getLogger().info("No more missed messages found.");
+            }
+        });
     }
 
     public static void processMessages(MessageChannel channel, Iterable<Message> messages) {
