@@ -19,6 +19,9 @@ public class MessageUpdateDelete extends ListenerAdapter {
                 Main.getLogger().error("Error while deleting edited message from store", e);
             }
         }
+
+        // Nuke the message if it's not a valid E. We're doing this after we update the DB in case of race conditions.
+        EUtils.deleteInvalidEMessages(event.getChannel().getIdLong(), event.getMessage());
     }
 
     @Override

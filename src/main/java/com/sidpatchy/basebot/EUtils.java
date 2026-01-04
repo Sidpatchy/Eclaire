@@ -22,6 +22,12 @@ public class EUtils {
         return false;
     }
 
+    public static void deleteInvalidEMessages(long channelID, Message message) {
+        if (channelID == E_CHANNEL_ID && !isValidEMessage(channelID, message)) {
+            message.delete().queue();
+        }
+    }
+
     public static void fetchMissedMessages(MessageChannel channel) {
         Main.getLogger().info("Rechecking for missed messages in channel: " + channel.getName());
         try {
