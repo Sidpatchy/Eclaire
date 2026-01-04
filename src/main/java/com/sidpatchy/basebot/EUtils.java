@@ -2,6 +2,7 @@ package com.sidpatchy.basebot;
 
 import com.sidpatchy.basebot.Data.EMessage;
 import com.sidpatchy.basebot.Data.MessageStore;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
@@ -10,10 +11,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
+
+import static org.apache.pdfbox.cos.COSName.T;
 
 public class EUtils {
 
     public static final long E_CHANNEL_ID = 519539412644790287L;
+    public static final long E_FAILURE_SHAMING_CHANNEL_ID = 1457239118982418574L;
 
     public static boolean isValidEMessage(long channelID, Message message) {
         if (channelID == E_CHANNEL_ID) {
@@ -25,7 +30,73 @@ public class EUtils {
     public static void deleteInvalidEMessages(long channelID, Message message) {
         if (channelID == E_CHANNEL_ID && !isValidEMessage(channelID, message)) {
             message.delete().queue();
+
+            JDA jda = message.getJDA();
+            MessageChannel shameChannel = jda.getChannelById(MessageChannel.class, E_FAILURE_SHAMING_CHANNEL_ID);
+
+            String shameMessage = buildShameMessage(message);
+
+            assert shameChannel != null;
+            shameChannel.sendMessage(shameMessage).queue();
+
         }
+    }
+
+    private static String buildShameMessage(Message message) {
+        User author = message.getAuthor();
+        String content = message.getContentRaw();
+        String contentToShow = content.matches("^\\s*([A-Za-z])(?:\\s*\\1\\s*)*$") ? content : "";
+
+        List<String> shameTemplates = List.of(
+                "%s can't use their keyboard",
+                "%s is a bozo",
+                "%s is still trying to find E on their keyboard",
+                "%s doesn't understand the assignment",
+                "%s forgot what letter we're on",
+                "%s is too cool for E apparently",
+                "%s has rejected the E",
+                "%s is a heretic",
+                "%s has strayed from the path of E",
+                "%s refuses to embrace the E",
+                "%s is not one of us",
+                "%s has forsaken the sacred letter",
+                "%s will not ascend with the rest of us",
+                "%s can't use their keyboard, innit",
+                "%s is an absolute muppet",
+                "%s is still trying to find E on their keyboard, the melt",
+                "%s doesn't understand the assignment, does they",
+                "%s forgot what letter we're on, bloody hell",
+                "%s thinks they're too posh for E",
+                "%s is having a proper mare with their keyboard",
+                "%s's gone and mucked it up",
+                "%s is taking the piss with these non-E letters",
+                "%s needs a loicense for that keyboard behaviour",
+                "%s is being a right knobhead about E",
+                "%s's keyboard went to the chippy without them",
+                "%s can't use their keyboard, arr",
+                "%s is a scurvy dog",
+                "%s is still trying to find E on their keyboard, ye barnacle",
+                "%s doesn't understand the assignment, me hearty",
+                "%s forgot what letter we be pressin'",
+                "%s thinks they're too fancy fer E",
+                "%s has mutinied against the letter E",
+                "%s's keyboard walked the plank",
+                "%s be sailin' against the E winds",
+                "%s needs a letter of marque fer that behaviour",
+                "%s's fingers be three sheets to the wind",
+                "%s abandoned ship on the E",
+                "%s be keelhauled fer this treachery against E"
+        );
+        String template = shameTemplates.get(new Random().nextInt(shameTemplates.size()));
+
+        if (!contentToShow.isEmpty()) {
+            template = template + ": %s";
+        }
+        else {
+            template = template + ".";
+        }
+
+        return String.format(template, author.getAsMention(), contentToShow);
     }
 
     public static void fetchMissedMessages(MessageChannel channel) {
