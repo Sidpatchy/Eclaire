@@ -36,7 +36,7 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
 
-    implementation 'com.github.Sidpatchy:Robin:2.2.7'
+    implementation 'com.sidpatchy:robin:2.2.7'
     implementation 'net.dv8tion:JDA:6.1.0'
 
     implementation 'org.apache.logging.log4j:log4j-api:2.25.3'
