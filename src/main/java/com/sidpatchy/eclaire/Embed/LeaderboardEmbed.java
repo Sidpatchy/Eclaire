@@ -1,7 +1,7 @@
-package com.sidpatchy.basebot.Embed;
+package com.sidpatchy.eclaire.Embed;
 
-import com.sidpatchy.basebot.Data.MessageStats;
-import com.sidpatchy.basebot.Main;
+import com.sidpatchy.eclaire.Data.MessageStats;
+import com.sidpatchy.eclaire.Main;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.sharding.ShardManager;

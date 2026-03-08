@@ -1,8 +1,8 @@
-package com.sidpatchy.basebot.Embed;
+package com.sidpatchy.eclaire.Embed;
 
-import com.sidpatchy.basebot.Data.ChartType;
-import com.sidpatchy.basebot.Data.MessageStats;
-import com.sidpatchy.basebot.Main;
+import com.sidpatchy.eclaire.Data.ChartType;
+import com.sidpatchy.eclaire.Data.MessageStats;
+import com.sidpatchy.eclaire.Main;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.utils.FileUpload;
@@ -45,7 +45,11 @@ public class StatsEmbed {
         builder.addField("Average Last 'E'", avgLast, true);
 
         Long uid = user == null ? null : user.getIdLong();
-        builder.addField("Longest Streak", stats.getLongestStreak(uid, zoneId) + " days", true);
+        MessageStats.Streak longestStreak = stats.getLongestStreakDetails(uid, zoneId);
+        MessageStats.Streak currentStreak = stats.getCurrentStreak(uid, zoneId);
+
+        builder.addField("Current Streak", currentStreak.toString(), true);
+        builder.addField("Longest Streak", longestStreak.toString(), true);
         builder.addField("Consistency (30d)", String.format("%.2f%%", stats.getConsistencyScore(uid, 30, zoneId)), true);
         builder.addField("Consistency (Total)", String.format("%.2f%%", stats.getConsistencyScore(uid, 0, zoneId)), true);
 

@@ -1,7 +1,7 @@
-package com.sidpatchy.basebot.Embed;
+package com.sidpatchy.eclaire.Embed;
 
-import com.sidpatchy.basebot.EUtils;
-import com.sidpatchy.basebot.Main;
+import com.sidpatchy.eclaire.EUtils;
+import com.sidpatchy.eclaire.Main;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 

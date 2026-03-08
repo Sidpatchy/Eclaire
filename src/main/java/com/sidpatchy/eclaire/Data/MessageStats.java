@@ -1,12 +1,10 @@
-package com.sidpatchy.basebot.Data;
+package com.sidpatchy.eclaire.Data;
 
 import org.knowm.xchart.BitmapEncoder;
 import org.knowm.xchart.CategoryChart;
 import org.knowm.xchart.CategoryChartBuilder;
-import org.knowm.xchart.style.Styler;
 
 import java.awt.Color;
-import com.sidpatchy.basebot.Main;
 import java.io.File;
 import java.io.IOException;
 import java.time.*;
@@ -152,12 +150,21 @@ public class MessageStats {
                 ));
     }
 
-    public int getLongestStreak(Long userID, ZoneId zoneId) throws IOException {
+    public record Streak(int length, LocalDate startDate, LocalDate endDate) {
+        @Override
+        public String toString() {
+            if (length == 0) return "0 days";
+            if (startDate.equals(endDate)) return String.format("%d day (%s)", length, startDate);
+            return String.format("%d days (%s to %s)", length, startDate, endDate);
+        }
+    }
+
+    public Streak getLongestStreakDetails(Long userID, ZoneId zoneId) throws IOException {
         var messages = userID == null ?
                 store.readAllMessages() :
                 store.filter(msg -> msg.author().userId() == userID);
 
-        if (messages.isEmpty()) return 0;
+        if (messages.isEmpty()) return new Streak(0, null, null);
 
         List<LocalDate> dates = messages.stream()
                 .map(msg -> Instant.ofEpochSecond(msg.timestamp()).atZone(zoneId).toLocalDate())
@@ -166,20 +173,79 @@ public class MessageStats {
                 .toList();
 
         int maxStreak = 0;
+        LocalDate maxStreakStart = null;
+        LocalDate maxStreakEnd = null;
+
         int currentStreak = 0;
+        LocalDate currentStreakStart = null;
         LocalDate lastDate = null;
 
         for (LocalDate date : dates) {
             if (lastDate == null || date.equals(lastDate.plusDays(1))) {
+                if (currentStreak == 0) currentStreakStart = date;
                 currentStreak++;
             } else {
-                maxStreak = Math.max(maxStreak, currentStreak);
+                if (currentStreak > maxStreak) {
+                    maxStreak = currentStreak;
+                    maxStreakStart = currentStreakStart;
+                    maxStreakEnd = lastDate;
+                }
                 currentStreak = 1;
+                currentStreakStart = date;
             }
             lastDate = date;
         }
 
-        return Math.max(maxStreak, currentStreak);
+        if (currentStreak > maxStreak) {
+            maxStreak = currentStreak;
+            maxStreakStart = currentStreakStart;
+            maxStreakEnd = lastDate;
+        }
+
+        return new Streak(maxStreak, maxStreakStart, maxStreakEnd);
+    }
+
+    public Streak getCurrentStreak(Long userID, ZoneId zoneId) throws IOException {
+        var messages = userID == null ?
+                store.readAllMessages() :
+                store.filter(msg -> msg.author().userId() == userID);
+
+        if (messages.isEmpty()) return new Streak(0, null, null);
+
+        List<LocalDate> dates = messages.stream()
+                .map(msg -> Instant.ofEpochSecond(msg.timestamp()).atZone(zoneId).toLocalDate())
+                .distinct()
+                .sorted(Comparator.reverseOrder())
+                .toList();
+
+        LocalDate today = LocalDate.now(zoneId);
+        LocalDate lastDate = dates.get(0);
+
+        // If the latest message is older than yesterday, the streak is broken
+        if (lastDate.isBefore(today.minusDays(1))) {
+            return new Streak(0, null, null);
+        }
+
+        int currentStreakLength = 0;
+        LocalDate currentStreakEnd = lastDate;
+        LocalDate currentStreakStart = lastDate;
+        LocalDate expectedDate = lastDate;
+
+        for (LocalDate date : dates) {
+            if (date.equals(expectedDate)) {
+                currentStreakLength++;
+                currentStreakStart = date;
+                expectedDate = expectedDate.minusDays(1);
+            } else {
+                break;
+            }
+        }
+
+        return new Streak(currentStreakLength, currentStreakStart, currentStreakEnd);
+    }
+
+    public int getLongestStreak(Long userID, ZoneId zoneId) throws IOException {
+        return getLongestStreakDetails(userID, zoneId).length();
     }
 
     public double getConsistencyScore(Long userID, int days, ZoneId zoneId) throws IOException {
@@ -325,7 +391,7 @@ public class MessageStats {
         chart.getStyler().setAxisTickLabelsColor(Color.WHITE);
         chart.getStyler().setLegendVisible(false);
         chart.getStyler().setChartTitleBoxVisible(false);
-        chart.getStyler().setSeriesColors(new Color[]{com.sidpatchy.basebot.Main.getColor()});
+        chart.getStyler().setSeriesColors(new Color[]{com.sidpatchy.eclaire.Main.getColor()});
         chart.getStyler().setAnnotationTextPanelBackgroundColor(new Color(54, 57, 63));
         chart.getStyler().setAnnotationTextFontColor(Color.WHITE);
         chart.getStyler().setXAxisTitleVisible(true);

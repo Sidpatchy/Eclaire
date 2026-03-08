@@ -1,6 +1,6 @@
-package com.sidpatchy.basebot;
+package com.sidpatchy.eclaire;
 
-import com.sidpatchy.basebot.Data.ChartType;
+import com.sidpatchy.eclaire.Data.ChartType;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class RegisterSlashCommands {
-    private static final com.sidpatchy.basebot.Commands commands = Main.getCommands();
+    private static final com.sidpatchy.eclaire.Commands commands = Main.getCommands();
 
     public static void DeleteSlashCommands() {
         JDA jda = getPrimaryJDA();

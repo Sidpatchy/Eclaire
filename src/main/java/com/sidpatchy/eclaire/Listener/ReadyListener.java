@@ -1,7 +1,7 @@
-package com.sidpatchy.basebot.Listener;
+package com.sidpatchy.eclaire.Listener;
 
-import com.sidpatchy.basebot.EUtils;
-import com.sidpatchy.basebot.Main;
+import com.sidpatchy.eclaire.EUtils;
+import com.sidpatchy.eclaire.Main;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;

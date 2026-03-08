@@ -1,17 +1,16 @@
-package com.sidpatchy.basebot;
+package com.sidpatchy.eclaire;
 
 import com.sidpatchy.Robin.Discord.CommandFactory;
 import com.sidpatchy.Robin.Exception.InvalidConfigurationException;
 import com.sidpatchy.Robin.File.ResourceLoader;
 import com.sidpatchy.Robin.File.RobinConfiguration;
-import com.sidpatchy.basebot.Data.MessageStats;
-import com.sidpatchy.basebot.Data.MessageStore;
-import com.sidpatchy.basebot.Listener.MessageReceived;
-import com.sidpatchy.basebot.Listener.MessageUpdateDelete;
-import com.sidpatchy.basebot.Listener.ReadyListener;
-import com.sidpatchy.basebot.Listener.SlashCommandCreate;
+import com.sidpatchy.eclaire.Data.MessageStats;
+import com.sidpatchy.eclaire.Data.MessageStore;
+import com.sidpatchy.eclaire.Listener.MessageReceived;
+import com.sidpatchy.eclaire.Listener.MessageUpdateDelete;
+import com.sidpatchy.eclaire.Listener.ReadyListener;
+import com.sidpatchy.eclaire.Listener.SlashCommandCreate;
 import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;

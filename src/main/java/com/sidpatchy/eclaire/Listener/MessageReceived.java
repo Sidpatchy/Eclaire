@@ -1,8 +1,7 @@
-package com.sidpatchy.basebot.Listener;
+package com.sidpatchy.eclaire.Listener;
 
-import com.sidpatchy.Robin.Discord.ParseCommands;
-import com.sidpatchy.basebot.EUtils;
-import com.sidpatchy.basebot.Main;
+import com.sidpatchy.eclaire.EUtils;
+import com.sidpatchy.eclaire.Main;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;

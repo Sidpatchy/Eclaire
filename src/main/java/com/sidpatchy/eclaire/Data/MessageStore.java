@@ -1,4 +1,4 @@
-package com.sidpatchy.basebot.Data;
+package com.sidpatchy.eclaire.Data;
 
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.dataformat.smile.SmileFactory;

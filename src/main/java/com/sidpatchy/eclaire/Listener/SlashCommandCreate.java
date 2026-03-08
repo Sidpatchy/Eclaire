@@ -1,13 +1,13 @@
-package com.sidpatchy.basebot.Listener;
+package com.sidpatchy.eclaire.Listener;
 
 import com.sidpatchy.Robin.Discord.ParseCommands;
-import com.sidpatchy.basebot.Data.ChartType;
-import com.sidpatchy.basebot.Embed.BuildCacheEmbed;
-import com.sidpatchy.basebot.Embed.HelpEmbed;
-import com.sidpatchy.basebot.Embed.LeaderboardEmbed;
-import com.sidpatchy.basebot.Embed.MilestonesEmbed;
-import com.sidpatchy.basebot.Embed.StatsEmbed;
-import com.sidpatchy.basebot.Main;
+import com.sidpatchy.eclaire.Data.ChartType;
+import com.sidpatchy.eclaire.Embed.BuildCacheEmbed;
+import com.sidpatchy.eclaire.Embed.HelpEmbed;
+import com.sidpatchy.eclaire.Embed.LeaderboardEmbed;
+import com.sidpatchy.eclaire.Embed.MilestonesEmbed;
+import com.sidpatchy.eclaire.Embed.StatsEmbed;
+import com.sidpatchy.eclaire.Main;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -23,7 +23,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.time.DateTimeException;
 import java.time.ZoneId;
-import java.util.Objects;
 
 public class SlashCommandCreate extends ListenerAdapter {
     private static final ParseCommands parseCommands = new ParseCommands(Main.getCommandsFile());

@@ -1,8 +1,8 @@
-package com.sidpatchy.basebot.Embed;
+package com.sidpatchy.eclaire.Embed;
 
-import com.sidpatchy.basebot.Data.EMessage;
-import com.sidpatchy.basebot.Data.MessageStats;
-import com.sidpatchy.basebot.Main;
+import com.sidpatchy.eclaire.Data.EMessage;
+import com.sidpatchy.eclaire.Data.MessageStats;
+import com.sidpatchy.eclaire.Main;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.sharding.ShardManager;
@@ -14,7 +14,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 public class MilestonesEmbed {
     private static final MessageStats stats = Main.getMessageStats();

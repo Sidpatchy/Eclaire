@@ -1,7 +1,6 @@
-package com.sidpatchy.basebot;
+package com.sidpatchy.eclaire;
 
-import com.sidpatchy.basebot.Data.EMessage;
-import com.sidpatchy.basebot.Data.MessageStore;
+import com.sidpatchy.eclaire.Data.EMessage;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
@@ -12,8 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
-
-import static org.apache.pdfbox.cos.COSName.T;
 
 public class EUtils {
 

@@ -1,8 +1,8 @@
-package com.sidpatchy.basebot.Embed;
+package com.sidpatchy.eclaire.Embed;
 
 import com.sidpatchy.Robin.Discord.Command;
-import com.sidpatchy.basebot.Commands;
-import com.sidpatchy.basebot.Main;
+import com.sidpatchy.eclaire.Commands;
+import com.sidpatchy.eclaire.Main;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 import java.io.FileNotFoundException;

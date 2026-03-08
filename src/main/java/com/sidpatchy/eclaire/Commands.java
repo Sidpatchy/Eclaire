@@ -1,4 +1,4 @@
-package com.sidpatchy.basebot;
+package com.sidpatchy.eclaire;
 
 import com.sidpatchy.Robin.Discord.Command;
 

@@ -1,4 +1,4 @@
-package com.sidpatchy.basebot.Data;
+package com.sidpatchy.eclaire.Data;
 
 public enum ChartType {
     HOURLY,
