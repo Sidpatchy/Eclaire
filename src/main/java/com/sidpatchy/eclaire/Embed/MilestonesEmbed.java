@@ -11,8 +11,10 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class MilestonesEmbed {
@@ -22,7 +24,8 @@ public class MilestonesEmbed {
         EmbedBuilder builder = new EmbedBuilder()
                 .setColor(Main.getColor())
                 .setTitle("E Milestones & Records")
-                .setDescription("Major historical marks in E history!");
+                .setDescription("Major historical marks in E history!")
+                .setFooter("TZ: " + zoneId.getDisplayName(TextStyle.SHORT, Locale.ENGLISH));
 
         List<EMessage> allMessages = Main.getMessageStore().readAllMessages();
         allMessages.sort(Comparator.comparingLong(EMessage::timestamp));

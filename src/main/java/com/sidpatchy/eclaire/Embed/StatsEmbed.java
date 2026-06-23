@@ -11,6 +11,8 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.format.TextStyle;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -27,7 +29,7 @@ public class StatsEmbed {
         String avgLast;
 
         if (user != null) {
-            builder.setFooter(user.getEffectiveName() + " (" + user.getId() + ")");
+            builder.setFooter(user.getEffectiveName() + " (" + user.getId() + ")" + " | " + "TZ: " + zoneId.getDisplayName(TextStyle.SHORT, Locale.ENGLISH));
 
             builder.addField("Confirmed 'E's", String.valueOf(stats.getTotalMessagesByUser(user.getIdLong())), true);
 
