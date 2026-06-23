@@ -20,6 +20,7 @@ import org.apache.logging.log4j.Logger;
 import java.awt.*;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.ZoneId;
 
 /**
  * Éclaire
@@ -39,7 +40,7 @@ import java.nio.file.Path;
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  * @since December 2025
- * @version 1.0.0
+ * @version 1.3.0
  * @author Sidpatchy
  */
 public class Main {
@@ -57,6 +58,7 @@ public class Main {
     private static String color;
     private static String errorColor;
     private static String guildID;
+    private static ZoneId botTimezone;
 
     // Commands
     private static final Logger logger = LogManager.getLogger(Main.class);
@@ -105,9 +107,9 @@ public class Main {
 
         // Set the bot's activity (streaming if URL provided)
         if (video_url != null && !video_url.isEmpty()) {
-            shardManager.setActivity(Activity.streaming("Éclaire v1.0.0", video_url));
+            shardManager.setActivity(Activity.streaming("Éclaire v1.3.0", video_url));
         } else {
-            shardManager.setActivity(Activity.playing("Éclaire v1.0.0"));
+            shardManager.setActivity(Activity.playing("Éclaire v1.3.0"));
         }
 
         // Register slash commands
@@ -162,6 +164,7 @@ public class Main {
             botName = config.getString("botName");
             color = config.getString("color");
             errorColor = config.getString("errorColor");
+            botTimezone = ZoneId.of(config.getString("botTimezone"));
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -202,6 +205,10 @@ public class Main {
     public static Color getColor() { return Color.decode(color); }
 
     public static Color getErrorColor() { return Color.decode(errorColor); }
+
+    public static ZoneId getBotTimezone() {
+        return botTimezone;
+    }
 
     public static String getConfigFile() { return configFile; }
 

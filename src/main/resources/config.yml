@@ -19,6 +19,9 @@ video_url: https://www.youtube.com/watch?v=AeZRYhLDLeU
 color: "#3498db"
 errorColor: "#e74d3c"
 
+# Timezone of the bot, ref: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+botTimezone: "UTC"
+
 # ----------------- SHARD CONFIG ---------------
 # It is assumed that only one shard will be running by default.
 # You probably don't need to change this.
