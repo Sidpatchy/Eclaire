@@ -40,7 +40,7 @@ import java.time.ZoneId;
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  * @since December 2025
- * @version 1.3.0
+ * @version 1.3.1
  * @author Sidpatchy
  */
 public class Main {
@@ -107,9 +107,9 @@ public class Main {
 
         // Set the bot's activity (streaming if URL provided)
         if (video_url != null && !video_url.isEmpty()) {
-            shardManager.setActivity(Activity.streaming("Éclaire v1.3.0", video_url));
+            shardManager.setActivity(Activity.streaming("Éclaire v1.3.1", video_url));
         } else {
-            shardManager.setActivity(Activity.playing("Éclaire v1.3.0"));
+            shardManager.setActivity(Activity.playing("Éclaire v1.3.1"));
         }
 
         // Register slash commands
