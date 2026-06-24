@@ -17,9 +17,9 @@ help:
 
 stats:
   name: "stats"
-  usage: "/stats <optional: USER>, <optional: TIMEFRAME>"
-  help: "E"
-  overview: "E"
+  usage: "/stats <optional: user>, <optional: chart-type>, <optional: timezone>"
+  help: "Provides statistics on server or user E posting."
+  overview: "**User**: If no user is provided, the command returns server-wide statistics. If a user is provided, the command returns statistics for that user.\n\n**Chart Type**: Hourly, Daily, Monthly, or Yearly. Returns all time frequency statistics by selected timeframe.\n\n**Timezone**: accepts any timezone recognized by Java's ZoneId. Ref: \nhttps://en.wikipedia.org/wiki/List_of_tz_database_time_zones"
 
 buildcache:
   name: "buildcache"
