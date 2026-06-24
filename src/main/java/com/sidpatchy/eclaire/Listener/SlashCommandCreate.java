@@ -124,7 +124,7 @@ public class SlashCommandCreate extends ListenerAdapter {
         else if (commandName.equalsIgnoreCase(parseCommands.getCommandName("milestones"))) {
             // Resolve Timezone
             OptionMapping timezoneOption = event.getOption("timezone");
-            ZoneId zoneId = ZoneId.systemDefault();
+            ZoneId zoneId = Main.getBotTimezone();
             if (timezoneOption != null) {
                 try {
                     zoneId = ZoneId.of(timezoneOption.getAsString());

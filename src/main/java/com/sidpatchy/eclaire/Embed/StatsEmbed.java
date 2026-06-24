@@ -11,6 +11,8 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.Locale;
 import java.util.Map;
@@ -28,8 +30,11 @@ public class StatsEmbed {
         String avgFirst;
         String avgLast;
 
+        ZonedDateTime zdt = ZonedDateTime.now(zoneId);
+        String tzText = "TZ: " + zdt.format(DateTimeFormatter.ofPattern("zzz"));
+
         if (user != null) {
-            builder.setFooter(user.getEffectiveName() + " (" + user.getId() + ")" + " | " + "TZ: " + zoneId.getDisplayName(TextStyle.SHORT, Locale.ENGLISH));
+            builder.setFooter(user.getEffectiveName() + " (" + user.getId() + ")" + " | " + tzText);
 
             builder.addField("Confirmed 'E's", String.valueOf(stats.getTotalMessagesByUser(user.getIdLong())), true);
 
@@ -38,6 +43,7 @@ public class StatsEmbed {
         }
         else {
             builder.addField("Total Confirmed 'E's", String.valueOf(stats.getTotalMessages()), true);
+            builder.setFooter("Server-wide statistics" + " | " + tzText);
 
             avgFirst = stats.getAverageFirstMessageTime(null, MessageStats.Period.DAY, zoneId);
             avgLast = stats.getAverageLastMessageTime(null, MessageStats.Period.DAY, zoneId);

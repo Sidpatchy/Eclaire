@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.sharding.ShardManager;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.Comparator;
@@ -21,11 +22,14 @@ public class MilestonesEmbed {
     private static final MessageStats stats = Main.getMessageStats();
 
     public static EmbedBuilder getMilestones(ShardManager shardManager, ZoneId zoneId) throws IOException {
+        ZonedDateTime zdt = ZonedDateTime.now(zoneId);
+        String tzText = "TZ: " + zdt.format(DateTimeFormatter.ofPattern("zzz"));
+
         EmbedBuilder builder = new EmbedBuilder()
                 .setColor(Main.getColor())
                 .setTitle("E Milestones & Records")
                 .setDescription("Major historical marks in E history!")
-                .setFooter("TZ: " + zoneId.getDisplayName(TextStyle.SHORT, Locale.ENGLISH));
+                .setFooter(tzText);
 
         List<EMessage> allMessages = Main.getMessageStore().readAllMessages();
         allMessages.sort(Comparator.comparingLong(EMessage::timestamp));
